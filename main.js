@@ -1,23 +1,105 @@
-const juan = {
+function isObject(subject) {
+    return typeof subject == "object";
+}
+
+function isArray(subject) {
+    return Array.isArray(subject);
+}
+
+function deepCopy(subject) {
+    let copySubject;
+
+    const subjectIsObject = isObject(subject);
+    const subjectIsArray = isArray(subject);
+
+    if (subjectIsArray) {
+        copySubject = [];
+    } else if (subjectIsObject) {
+        copySubject = {};
+    } else {
+        return subject;
+    }
+
+    for (key in subject) {
+        const keyIsObject = isObject(subject[key]);
+
+        if (keyIsObject) {
+            copySubject[key] = deepCopy(subject[key]);
+        } else {
+            if (subjectIsArray) {
+                copySubject.push(subject[key]);
+            } else {
+                copySubject[key] = subject[key];
+            }
+        }
+    }
+
+    return copySubject;
+}
+
+// const studentBase = {
+//   name: undefined,
+//   email: undefined,
+//   age: undefined,
+//   approvedCourses: undefined,
+//   learningPaths: undefined,
+//   socialMedia: {
+//     twitter: undefined,
+//     instagram: undefined,
+//     facebook: undefined,
+//   },
+// };
+
+function requiredParam(param) {
+    throw new Error(param + " es obligatorio");
+}
+
+function createStudent({
+    name = requiredParam("name"),
+    email = requiredParam("email"),
+    age,
+    twitter,
+    instagram,
+    facebook,
+    approvedCourses = [],
+    learningPaths = [],
+    } = {}) {
+    const private = {
+        "_name": name
+    };
+    const public = {
+        email,
+        age,
+        approvedCourses,
+        learningPaths,
+        socialMedia: {
+            twitter,
+            instagram,
+            facebook,
+        },
+        readName(newName) {
+            return private["_name"];
+        },
+        changeName(newName) {
+            private["_name"] = newName;
+        }
+    };
+
+    Object.defineProperty(public, "readName", {
+        configurable: false,
+        writable: false
+    });
+
+    Object.defineProperty(public, "changeName", {
+        configurable: false,
+        writable: false
+    })
+    return public;
+}
+
+const juan = createStudent({
+    email: "juanito@frijoles.co",
     name: "Juanito",
     age: 18,
-    approvedCourses: ["Curso 1"],
-    addCourse(newCourse) {
-        console.log("This", this);
-        console.log("This.approvedCourses", this.approvedCourses);
-        this.approvedCourses.push(newCourse);
-    }
-};
-
-console.log(Object.keys(juan));
-console.log(Object.getOwnPropertyNames(juan));
-console.log(Object.entries(juan));
-
-console.log(Object.getOwnPropertyDescriptors(juan));
-
-Object.defineProperty(juan,"pruebaMASA",{
-    value: "extraterrestres",
-    writable: true,
-    enumerable: true,
-    configurable: true
-})
+    twitter: "fjuandc"
+});
